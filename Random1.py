@@ -267,3 +267,37 @@ if __name__ == "__main__":
     root.protocol("WM_DELETE_WINDOW", app.on_close)
     root.mainloop()
     
+
+
+import os
+import shutil
+
+def delete_all_files(directory):
+    try:
+        # Check if the directory exists
+        if not os.path.exists(directory):
+            print(f"The directory '{directory}' does not exist.")
+            return
+
+        # Loop through all files in the directory
+        for filename in os.listdir(directory):
+            file_path = os.path.join(directory, filename)
+
+            # Check if it's a file and delete it
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+                print(f"Deleted file: {file_path}")
+            # Optional: If directories should also be deleted
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+                print(f"Deleted directory: {file_path}")
+
+        print("All files and directories have been deleted successfully.")
+    
+    except Exception as e:
+        print(f"Error: {e}")
+
+# Example usage
+directory_path = r"C:\path\to\your\directory"  # Update with your path
+delete_all_files(directory_path)
+
