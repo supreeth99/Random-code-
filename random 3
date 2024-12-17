@@ -1,0 +1,88 @@
+import React, { useState } from "react";
+
+const SearchBar = () => {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+
+  const handleSearch = (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    setQuery(searchTerm);
+
+    if (!searchTerm) {
+      setResults([]);
+      return;
+    }
+
+    // Recursive function to search nested config
+    const searchConfig = (config, searchTerm) => {
+      return config
+        .map((item) => {
+          // Search in entries
+          const matchingEntries = item.entries.filter((entry) =>
+            entry.name.toLowerCase().includes(searchTerm)
+          );
+
+          // Search in subcategories (if they exist)
+          const matchingSubcategories = item.subcategories
+            ? searchConfig(item.subcategories, searchTerm)
+            : [];
+
+          // If there are matches in entries or subcategories, include this category
+          if (matchingEntries.length > 0 || matchingSubcategories.length > 0) {
+            return {
+              category: item.category,
+              entries: matchingEntries,
+              subcategories: matchingSubcategories,
+            };
+          }
+          return null;
+        })
+        .filter(Boolean);
+    };
+
+    const filteredResults = searchConfig(config, searchTerm);
+    setResults(filteredResults);
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        placeholder="Search settings..."
+        value={query}
+        onChange={handleSearch}
+      />
+      <div>
+        {results.length > 0 ? (
+          results.map((result) => (
+            <CategoryDisplay key={result.category} categoryData={result} />
+          ))
+        ) : (
+          query && <p>No results found</p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Component to recursively display categories and entries
+const CategoryDisplay = ({ categoryData }) => {
+  return (
+    <div style={{ marginLeft: "20px" }}>
+      <h3>{categoryData.category}</h3>
+      <ul>
+        {categoryData.entries.map((entry) => (
+          <li key={entry.id}>
+            {entry.name}: {entry.value}
+          </li>
+        ))}
+      </ul>
+      {categoryData.subcategories &&
+        categoryData.subcategories.map((sub) => (
+          <CategoryDisplay key={sub.category} categoryData={sub} />
+        ))}
+    </div>
+  );
+};
+
+export default SearchBar;
