@@ -86,3 +86,70 @@ const CategoryDisplay = ({ categoryData }) => {
 };
 
 export default SearchBar;
+
+
+
+
+
+const flattenData = (obj, parentKey = '') => {
+  let result = {};
+
+  // Loop through each key-value pair in the object
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const newKey = parentKey ? `${parentKey}.${key}` : key; // Combine parent and current key
+
+      // If the value is an object or array, recursively flatten it
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        // If the value is an array, handle each element in the array
+        if (Array.isArray(obj[key])) {
+          obj[key].forEach((item, index) => {
+            // Recursively flatten the items in the array
+            Object.assign(result, flattenData(item, `${newKey}.${index}`));
+          });
+        } else {
+          // Otherwise, recursively flatten the object
+          Object.assign(result, flattenData(obj[key], newKey));
+        }
+      } else {
+        // If it's a primitive value, add it directly
+        result[newKey] = obj[key];
+      }
+    }
+  }
+
+  return result;
+};
+
+const data = {
+  0: {
+    name: 'John Doe',
+    details: {
+      email: 'john@example.com',
+      age: 28,
+      marks: [
+        [85, 78, 92, 74, 88],
+        [90, 67, 80, 95, 83],
+        [88, 91, 76, 82, 89],
+      ],
+    },
+  },
+  1: {
+    name: 'Jane Smith',
+    details: {
+      email: 'jane@example.com',
+      age: 32,
+      marks: [
+        [88, 91, 76, 82, 89],
+        [94, 73, 85, 87, 90],
+        [72, 81, 94, 88, 90],
+      ],
+    },
+  },
+};
+
+const flattenedData = Object.entries(data).map(([key, value]) => {
+  return flattenData(value, key); // Flatten each entry with its numeric key (0, 1, etc.)
+});
+
+console.log(flattenedData);
